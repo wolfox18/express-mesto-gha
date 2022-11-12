@@ -2,7 +2,8 @@ import express from "express";
 import mongoose from "mongoose";
 import path from 'path';
 import bodyParser from 'body-parser';
-import { router as usersRouter} from "./routes/users.js";
+import { usersRouter } from "./routes/users.js";
+import { cardsRouter } from "./routes/cards.js";
 
 const { PORT = 3000 } = process.env;
 
@@ -14,7 +15,16 @@ mongoose.connect("mongodb://localhost:27017/mestodb", {
 });
 
 app.use(bodyParser.json());
+app.use((req, res, next) => {
+  req.user = {
+    _id: '636f57bbe14e3b56f6a92eb1',
+  };
+
+  next();
+});
+
 app.use('/', usersRouter);
+app.use('/', cardsRouter);
 
 
 app.listen(PORT, () => {
