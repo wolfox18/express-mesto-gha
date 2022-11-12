@@ -1,13 +1,18 @@
 import { Card } from "../models/cards.js";
+import { constants } from 'http2';
 
 export const create = (req, res) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
-      res.status(201).send(card);
+      res.status(constants.HTTP_STATUS_CREATED).send(card);
     })
     .catch((err) => {
-      console.log(err);
+      if (err.name === "ValidationError") {
+        res.status(constants.HTTP_STATUS_BAD_REQUEST).send({ message: "Переданы некорректные данные" });
+      } else {
+        res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка добавления карточки" });
+      }
     });
 };
 
@@ -17,18 +22,21 @@ export const readAll = (req, res) => {
       res.send(card);
     })
     .catch((err) => {
-      console.log(err);
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка чтения карточек" });
     });
 };
 
 export const deleteById = (req, res) => {
   Card.findByIdAndRemove({ _id: req.params.cardId })
     .then(() => {
-      console.log("Card deleted");
-      res.status(200).send({});
+      res.send({});
     })
     .catch((err) => {
-      console.log(err);
+      if (err.name === "CastError") {
+        res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: "Карточка не найдена" });
+      } else {
+        res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка поиска карточки" });
+      }
     });
 };
 
@@ -42,7 +50,13 @@ export const setLike = (req, res) => {
       res.send(card);
     })
     .catch((err) => {
-      console.log(err);
+      if (err.name === "CastError") {
+        res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: "Карточка не найдена" });
+      } else if (err.name === "ValidationError") {
+        res.status(constants.HTTP_STATUS_BAD_REQUEST).send({ message: "Переданы некорректные данные" });
+      } else {
+        res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка установки лайка" });
+      }
     });
 };
 
@@ -56,6 +70,12 @@ export const removeLike = (req, res) => {
       res.send(card);
     })
     .catch((err) => {
-      console.log(err);
+      if (err.name === "CastError") {
+        res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: "Карточка не найдена" });
+      } else if (err.name === "ValidationError") {
+        res.status(constants.HTTP_STATUS_BAD_REQUEST).send({ message: "Переданы некорректные данные" });
+      } else {
+        res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка снятия лайка" });
+      }
     });
 };

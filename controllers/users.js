@@ -1,4 +1,5 @@
 import { User } from "../models/users.js";
+import { constants} from 'http2';
 
 export const readAll = (req, res) => {
   User.find({})
@@ -6,7 +7,7 @@ export const readAll = (req, res) => {
       res.send(users);
     })
     .catch((err) => {
-      console.log(err);
+      res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка прочтения пользователей" });
     });
 };
 
@@ -16,7 +17,11 @@ export const readById = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      console.log(err);
+      if (err.name === "CastError") {
+        res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: "Пользователь не найден" });
+      } else {
+        res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка поиска пользователя" });
+      }
     });
 };
 
@@ -24,10 +29,14 @@ export const create = (req, res) => {
   const { name, about, avatar } = req.body;
   User.create({ name, about, avatar })
     .then((user) => {
-      res.status(201).send(user);
+      res.status(constants.HTTP_STATUS_CREATED).send(user);
     })
     .catch((err) => {
-      console.log(err);
+      if (err.name === "ValidationError") {
+        res.status(constants.HTTP_STATUS_BAD_REQUEST).send({ message: "Переданы некорректные данные" });
+      } else {
+        res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка добавления пользователя" });
+      }
     });
 };
 
@@ -38,7 +47,13 @@ export const edit = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      console.log(err);
+      if (err.name === "CastError") {
+        res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: "Пользователь не найден" });
+      } else if (err.name === "ValidationError") {
+        res.status(constants.HTTP_STATUS_BAD_REQUEST).send({ message: "Переданы некорректные данные" });
+      } else {
+        res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка обновления пользователя" });
+      }
     });
 };
 
@@ -49,6 +64,12 @@ export const editAvatar = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      console.log(err);
+      if (err.name === "CastError") {
+        res.status(constants.HTTP_STATUS_NOT_FOUND).send({ message: "Пользователь не найден" });
+      } else if (err.name === "ValidationError") {
+        res.status(constants.HTTP_STATUS_BAD_REQUEST).send({ message: "Переданы некорректные данные" });
+      } else {
+        res.status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR).send({ message: "Ошибка обновления пользователя" });
+      }
     });
 };

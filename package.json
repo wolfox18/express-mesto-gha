@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "app.js",
+    "start": "node app.js",
     "dev": "nodemon app.js",
     "lint": "npx eslint ."
   },
@@ -15,7 +15,7 @@
     "url": "git+https://github.com/wolfox18/express-mesto-gha.git"
   },
   "keywords": [],
-  "author": "",
+  "author": "Nikolay Shikalenko with support of Practikum",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/wolfox18/express-mesto-gha/issues"
