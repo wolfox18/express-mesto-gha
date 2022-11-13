@@ -1,15 +1,15 @@
-import { User } from "../models/users.js";
-import { constants } from "http2";
+import { constants } from 'http2';
+import { User } from '../models/users.js';
 
 export const readAll = (req, res) => {
   User.find({})
     .then((users) => {
       res.send(users);
     })
-    .catch((err) => {
+    .catch(() => {
       res
         .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({ message: "Ошибка прочтения пользователей" });
+        .send({ message: 'Ошибка прочтения пользователей' });
     });
 };
 
@@ -17,20 +17,21 @@ export const readById = (req, res) => {
   User.findOne({ _id: req.params.userId })
     .then((user) => {
       if (user) res.send(user);
-      else
+      else {
         res
           .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: "Пользователь не найден" });
+          .send({ message: 'Пользователь не найден' });
+      }
     })
     .catch((err) => {
-      if (err.name === "CastError") {
+      if (err.name === 'CastError') {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: "Переданы некорректные данные" });
+          .send({ message: 'Переданы некорректные данные' });
       } else {
         res
           .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: "Ошибка поиска пользователя" });
+          .send({ message: 'Ошибка поиска пользователя' });
       }
     });
 };
@@ -42,14 +43,14 @@ export const create = (req, res) => {
       res.status(constants.HTTP_STATUS_CREATED).send(user);
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === 'ValidationError') {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: "Переданы некорректные данные" });
+          .send({ message: 'Переданы некорректные данные' });
       } else {
         res
           .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: "Ошибка добавления пользователя" });
+          .send({ message: 'Ошибка добавления пользователя' });
       }
     });
 };
@@ -59,24 +60,24 @@ export const edit = (req, res) => {
   User.findByIdAndUpdate(
     req.user._id,
     { name, about },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === "ReferenceError") {
+      if (err.name === 'ReferenceError') {
         res
           .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: "Пользователь не найден" });
-      } else if (err.name === "ValidationError") {
+          .send({ message: 'Пользователь не найден' });
+      } else if (err.name === 'ValidationError') {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: "Переданы некорректные данные" });
+          .send({ message: 'Переданы некорректные данные' });
       } else {
         res
           .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: "Ошибка обновления пользователя" });
+          .send({ message: 'Ошибка обновления пользователя' });
       }
     });
 };
@@ -86,24 +87,24 @@ export const editAvatar = (req, res) => {
   User.findByIdAndUpdate(
     req.user._id,
     { avatar },
-    { new: true, runValidators: true }
+    { new: true, runValidators: true },
   )
     .then((user) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === "ReferenceError") {
+      if (err.name === 'ReferenceError') {
         res
           .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: "Пользователь не найден" });
-      } else if (err.name === "ValidationError") {
+          .send({ message: 'Пользователь не найден' });
+      } else if (err.name === 'ValidationError') {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: "Переданы некорректные данные" });
+          .send({ message: 'Переданы некорректные данные' });
       } else {
         res
           .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: "Ошибка обновления пользователя" });
+          .send({ message: 'Ошибка обновления пользователя' });
       }
     });
 };

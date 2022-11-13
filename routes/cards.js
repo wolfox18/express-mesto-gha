@@ -1,5 +1,7 @@
-import { Router } from "express";
-import { readAll, deleteById, create, setLike, removeLike } from "../controllers/cards.js";
+import { Router } from 'express';
+import {
+  readAll, deleteById, create, setLike, removeLike,
+} from '../controllers/cards.js';
 
 export const cardsRouter = Router();
 

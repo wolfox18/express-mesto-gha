@@ -23,7 +23,7 @@ const cardSchema = new Schema({
   createdAt: {
     type: Date,
     default: Date.now,
-  }
+  },
 });
 
 export const Card = mongoose.model('card', cardSchema);
