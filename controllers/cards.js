@@ -43,11 +43,7 @@ export const deleteById = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ReferenceError') {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка не найдена' });
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
           .send({ message: 'Переданы некорректные данные' });
@@ -74,11 +70,7 @@ export const setLike = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ReferenceError') {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка не найдена' });
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
           .send({ message: 'Переданы некорректные данные' });
@@ -105,11 +97,7 @@ export const removeLike = (req, res) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ReferenceError') {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка не найдена' });
-      } else if (err.name === 'CastError') {
+      if (err.name === 'CastError') {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
           .send({ message: 'Переданы некорректные данные' });

@@ -66,11 +66,7 @@ export const edit = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'ReferenceError') {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Пользователь не найден' });
-      } else if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
           .send({ message: 'Переданы некорректные данные' });
@@ -93,11 +89,7 @@ export const editAvatar = (req, res) => {
       res.send(user);
     })
     .catch((err) => {
-      if (err.name === 'ReferenceError') {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Пользователь не найден' });
-      } else if (err.name === 'ValidationError') {
+      if (err.name === 'ValidationError') {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
           .send({ message: 'Переданы некорректные данные' });
