@@ -23,14 +23,10 @@ export const readById = (req, res) => {
           .send({ message: "Пользователь не найден" });
     })
     .catch((err) => {
-      if (err.name === "ValidationError") {
+      if (err.name === "CastError") {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
           .send({ message: "Переданы некорректные данные" });
-      } else if (err.name === "ReferenceError") {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: "Пользователь не найден" });
       } else {
         res
           .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)

@@ -34,7 +34,7 @@ export const readAll = (req, res) => {
 
 export const deleteById = (req, res) => {
   Card.findByIdAndRemove({ _id: req.params.cardId })
-    .then(() => {
+    .then((card) => {
       if (card) res.send(card);
       else
         res
@@ -46,6 +46,10 @@ export const deleteById = (req, res) => {
         res
           .status(constants.HTTP_STATUS_NOT_FOUND)
           .send({ message: "Карточка не найдена" });
+      } else if (err.name === "CastError") {
+        res
+          .status(constants.HTTP_STATUS_BAD_REQUEST)
+          .send({ message: "Переданы некорректные данные" });
       } else {
         res
           .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
@@ -72,7 +76,7 @@ export const setLike = (req, res) => {
         res
           .status(constants.HTTP_STATUS_NOT_FOUND)
           .send({ message: "Карточка не найдена" });
-      } else if (err.name === "ValidationError") {
+      } else if (err.name === "CastError") {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
           .send({ message: "Переданы некорректные данные" });
@@ -102,14 +106,14 @@ export const removeLike = (req, res) => {
         res
           .status(constants.HTTP_STATUS_NOT_FOUND)
           .send({ message: "Карточка не найдена" });
-      } else if (err.name === "ValidationError") {
+      } else if (err.name === "CastError") {
         res
           .status(constants.HTTP_STATUS_BAD_REQUEST)
           .send({ message: "Переданы некорректные данные" });
       } else {
         res
           .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: "Ошибка снятия лайка" });
+          .send({ message: "Ошибка установки лайка" });
       }
     });
 };
