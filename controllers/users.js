@@ -5,11 +5,15 @@ import { User } from '../models/users.js';
 
 const { jwt } = pkg;
 
-export const signin = (req, res) => {
+export const login = (req, res) => {
   const { email, password } = req.body;
+  // console.log('email - ', email);
+  // console.log('password - ', password);
   return User.findUserByCredentials(email, password)
     .then((user) => {
+      console.log('user in controller - ', user);
       const token = jwt.sign({ _id: user._id });
+      console.log('token - ', token);
       res.send({ token });
     })
     .catch(() => {
@@ -54,7 +58,7 @@ export const readById = (req, res) => {
     });
 };
 
-export const signup = (req, res) => {
+export const createUser = (req, res) => {
   const {
     name, about, avatar, email, password,
   } = req.body;

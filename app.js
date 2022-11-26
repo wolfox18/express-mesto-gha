@@ -25,6 +25,7 @@ app.use((req, res, next) => {
 });
 
 app.use('/', authRouter);
+
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
 
