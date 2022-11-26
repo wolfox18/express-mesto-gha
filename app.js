@@ -4,6 +4,7 @@ import { constants } from 'http2';
 import bodyParser from 'body-parser';
 import { usersRouter } from './routes/users.js';
 import { cardsRouter } from './routes/cards.js';
+import { authRouter } from './routes/auth.js';
 
 const { PORT = 3000 } = process.env;
 
@@ -23,6 +24,7 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use('/', authRouter);
 app.use('/', usersRouter);
 app.use('/', cardsRouter);
 

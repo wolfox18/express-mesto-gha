@@ -1,5 +1,23 @@
 import { constants } from 'http2';
+import bcryptjs from 'bcryptjs';
+import pkg from 'jsonwebtoken';
 import { User } from '../models/users.js';
+
+const { jwt } = pkg;
+
+export const signin = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id });
+      res.send({ token });
+    })
+    .catch(() => {
+      res
+        .status(constants.HTTP_STATUS_UNAUTHORIZED)
+        .send({ message: 'Неправильные почта или пароль' });
+    });
+};
 
 export const readAll = (req, res) => {
   User.find({})
@@ -36,23 +54,30 @@ export const readById = (req, res) => {
     });
 };
 
-export const create = (req, res) => {
-  const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar })
-    .then((user) => {
-      res.status(constants.HTTP_STATUS_CREATED).send(user);
+export const signup = (req, res) => {
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
+  bcryptjs.hash(password, 10)
+    .then((hash) => User.create({
+      name, about, avatar, email, password: hash,
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res
-          .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Переданы некорректные данные' });
-      } else {
-        res
-          .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Ошибка добавления пользователя' });
-      }
-    });
+      .then((document) => {
+        const user = document.toObject();
+        delete user.password;
+        res.status(constants.HTTP_STATUS_CREATED).send(user);
+      })
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          res
+            .status(constants.HTTP_STATUS_BAD_REQUEST)
+            .send({ message: 'Переданы некорректные данные' });
+        } else {
+          res
+            .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+            .send({ message: 'Ошибка добавления пользователя' });
+        }
+      }));
 };
 
 export const edit = (req, res) => {
