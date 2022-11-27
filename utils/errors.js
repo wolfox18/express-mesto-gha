@@ -35,3 +35,10 @@ export class InternalServerError extends Error {
     this.statusCode = constants.HTTP_STATUS_INTERNAL_SERVER_ERROR;
   }
 }
+
+export class ConflictError extends Error {
+  constructor(message) {
+    super(message);
+    this.statusCode = constants.HTTP_STATUS_CONFLICT;
+  }
+}

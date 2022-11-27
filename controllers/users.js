@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 import { User } from '../models/users.js';
 import { jwtKey } from '../utils/utils.js';
 import {
-  NotFoundError, InternalServerError, UnauthorizedError, BadRequestError,
+  NotFoundError, InternalServerError, UnauthorizedError, BadRequestError, ConflictError,
 } from '../utils/errors.js';
 
 export const readMe = (req, res, next) => {
@@ -75,6 +75,8 @@ export const createUser = (req, res, next) => {
       .catch((err) => {
         if (err.name === 'ValidationError') {
           next(new BadRequestError('Введены некорректные данные'));
+        } else if (err.code === 11000) {
+          next(new ConflictError('Пользователь с такой почтой уже существует'));
         } else {
           next(new InternalServerError(err.message));
         }
