@@ -1,64 +1,65 @@
 import { constants } from 'http2';
 import bcryptjs from 'bcryptjs';
-import pkg from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { User } from '../models/users.js';
+import { jwtKey } from '../utils/utils.js';
+import {
+  NotFoundError, InternalServerError, UnauthorizedError, BadRequestError,
+} from '../utils/errors.js';
 
-const { jwt } = pkg;
-
-export const login = (req, res) => {
-  const { email, password } = req.body;
-  // console.log('email - ', email);
-  // console.log('password - ', password);
-  return User.findUserByCredentials(email, password)
+export const readMe = (req, res, next) => {
+  User.findOne({ _id: req.user._id })
     .then((user) => {
-      console.log('user in controller - ', user);
-      const token = jwt.sign({ _id: user._id });
-      console.log('token - ', token);
-      res.send({ token });
+      if (user) res.send(user);
+      else {
+        next(new NotFoundError('Пользователь не найден'));
+      }
     })
-    .catch(() => {
-      res
-        .status(constants.HTTP_STATUS_UNAUTHORIZED)
-        .send({ message: 'Неправильные почта или пароль' });
+    .catch((err) => {
+      next(new InternalServerError(err.message));
     });
 };
 
-export const readAll = (req, res) => {
+export const login = (req, res, next) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, jwtKey, { expiresIn: '1h' });
+      res.send({ token });
+    })
+    .catch(() => {
+      next(new UnauthorizedError('Неправильная почта или пароль'));
+    });
+};
+
+export const readAll = (req, res, next) => {
   User.find({})
     .then((users) => {
       res.send(users);
     })
-    .catch(() => {
-      res
-        .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({ message: 'Ошибка прочтения пользователей' });
+    .catch((err) => {
+      next(new InternalServerError(err.message));
     });
 };
 
-export const readById = (req, res) => {
+export const readById = (req, res, next) => {
   User.findOne({ _id: req.params.userId })
     .then((user) => {
       if (user) res.send(user);
       else {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Пользователь не найден' });
+        next(new NotFoundError('Пользователь не найден'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
-          .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Введены некорректные данные'));
       } else {
-        res
-          .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Ошибка поиска пользователя' });
+        next(new InternalServerError(err.message));
       }
     });
 };
 
-export const createUser = (req, res) => {
+export const createUser = (req, res, next) => {
   const {
     name, about, avatar, email, password,
   } = req.body;
@@ -73,18 +74,14 @@ export const createUser = (req, res) => {
       })
       .catch((err) => {
         if (err.name === 'ValidationError') {
-          res
-            .status(constants.HTTP_STATUS_BAD_REQUEST)
-            .send({ message: 'Переданы некорректные данные' });
+          next(new BadRequestError('Введены некорректные данные'));
         } else {
-          res
-            .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-            .send({ message: 'Ошибка добавления пользователя' });
+          next(new InternalServerError(err.message));
         }
       }));
 };
 
-export const edit = (req, res) => {
+export const edit = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -96,18 +93,14 @@ export const edit = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Введены некорректные данные'));
       } else {
-        res
-          .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Ошибка обновления пользователя' });
+        next(new InternalServerError(err.message));
       }
     });
 };
 
-export const editAvatar = (req, res) => {
+export const editAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -119,13 +112,9 @@ export const editAvatar = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Введены некорректные данные'));
       } else {
-        res
-          .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Ошибка обновления пользователя' });
+        next(new InternalServerError(err.message));
       }
     });
 };

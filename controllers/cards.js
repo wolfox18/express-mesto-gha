@@ -1,7 +1,10 @@
 import { constants } from 'http2';
 import { Card } from '../models/cards.js';
+import {
+  NotFoundError, InternalServerError, BadRequestError, ForbiddenError,
+} from '../utils/errors.js';
 
-export const create = (req, res) => {
+export const create = (req, res, next) => {
   const { name, link } = req.body;
   Card.create({ name, link, owner: req.user._id })
     .then((card) => {
@@ -9,53 +12,48 @@ export const create = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        res
-          .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res
-          .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Ошибка добавления карточки' });
+        next(new InternalServerError(err.message));
       }
     });
 };
 
-export const readAll = (req, res) => {
+export const readAll = (req, res, next) => {
   Card.find({})
     .then((card) => {
       res.send(card);
     })
-    .catch(() => {
-      res
-        .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-        .send({ message: 'Ошибка чтения карточек' });
+    .catch((err) => {
+      next(new InternalServerError(err.message));
     });
 };
 
-export const deleteById = (req, res) => {
-  Card.findByIdAndRemove({ _id: req.params.cardId })
+export const deleteById = (req, res, next) => {
+  Card.findById({ _id: req.params.cardId })
+    // eslint-disable-next-line consistent-return
     .then((card) => {
-      if (card) res.send(card);
-      else {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка не найдена' });
+      if (!card) {
+        next(new NotFoundError('Карточка не найдена'));
+      } else if (card.owner.toString() !== req.user._id) {
+        next(new ForbiddenError('Вы не можете удалить чужую карточку'));
+      } else {
+        return card.remove();
       }
+    })
+    .then((card) => {
+      res.send(card);
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
-          .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res
-          .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Ошибка поиска карточки' });
+        next(new InternalServerError(err.message));
       }
     });
 };
 
-export const setLike = (req, res) => {
+export const setLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $addToSet: { likes: req.user._id } },
@@ -64,25 +62,19 @@ export const setLike = (req, res) => {
     .then((card) => {
       if (card) res.send(card);
       else {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка не найдена' });
+        next(new NotFoundError('Карточка не найдена'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
-          .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res
-          .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Ошибка установки лайка' });
+        next(new InternalServerError(err.message));
       }
     });
 };
 
-export const removeLike = (req, res) => {
+export const removeLike = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     { $pull: { likes: req.user._id } },
@@ -91,20 +83,14 @@ export const removeLike = (req, res) => {
     .then((card) => {
       if (card) res.send(card);
       else {
-        res
-          .status(constants.HTTP_STATUS_NOT_FOUND)
-          .send({ message: 'Карточка не найдена' });
+        next(new NotFoundError('Карточка не найдена'));
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res
-          .status(constants.HTTP_STATUS_BAD_REQUEST)
-          .send({ message: 'Переданы некорректные данные' });
+        next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        res
-          .status(constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-          .send({ message: 'Ошибка установки лайка' });
+        next(new InternalServerError(err.message));
       }
     });
 };

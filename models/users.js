@@ -1,6 +1,7 @@
 import mongoose, { Schema } from 'mongoose';
 import validator from 'validator';
 import bcryptjs from 'bcryptjs';
+import { UnauthorizedError } from '../utils/errors.js';
 
 const userSchema = new Schema({
   name: {
@@ -38,27 +39,19 @@ const userSchema = new Schema({
 
 // eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
-  console.log('Function findUserByCredentials started');
-  console.log('email - ', email);
-  console.log('this - ', this);
   return this.findOne({ email })
     .select('+password')
     .then((document) => {
-      console.log('document - ', document);
       if (!document) {
-        console.log('Do not found email');
-        throw new Error('Неправильные почта или пароль');
+        throw new UnauthorizedError('Неправильные почта или пароль');
       }
       return bcryptjs.compare(password, document.password)
         .then((matched) => {
-          console.log('matched', matched);
           if (!matched) {
-            console.log('Password doesnt match');
-            throw new Error('Неправильные почта или пароль');
+            throw new UnauthorizedError('Неправильные почта или пароль');
           }
           const user = document.toObject();
           delete user.password;
-          console.log('user - ', user);
           return user;
         });
     });
