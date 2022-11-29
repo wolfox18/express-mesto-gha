@@ -30,8 +30,9 @@ export const login = (req, res, next) => {
       const token = jwt.sign({ _id: user._id }, JWT_SALT, { expiresIn: '1d' });
       res.send({ token });
     })
-    .catch(() => {
-      next(Error('Unknown server error'));
+    .catch((err) => {
+      if (err.statusCode === 401) next(err);
+      else next(Error('Unknown server error'));
     });
 };
 

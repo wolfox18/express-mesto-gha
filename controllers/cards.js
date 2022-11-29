@@ -11,11 +11,8 @@ export const create = (req, res, next) => {
       res.status(constants.HTTP_STATUS_CREATED).send(card);
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(new Error());
-      }
+      if (err.statusCode) next(err);
+      else next(new Error());
     });
 };
 
@@ -44,11 +41,8 @@ export const deleteById = (req, res, next) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new BadRequestError('Переданы некорректные данные'));
-      } else {
-        next(new Error());
-      }
+      if (err.statusCode) next(err);
+      else next(new Error());
     });
 };
 
