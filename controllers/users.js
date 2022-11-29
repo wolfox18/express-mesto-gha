@@ -2,9 +2,8 @@ import { constants } from 'http2';
 import bcryptjs from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/users.js';
-import { jwtKey } from '../utils/utils.js';
 import {
-  NotFoundError, UnauthorizedError, BadRequestError, ConflictError,
+  NotFoundError, BadRequestError, ConflictError,
 } from '../utils/errors.js';
 
 export const readMe = (req, res, next) => {
@@ -15,7 +14,10 @@ export const readMe = (req, res, next) => {
         next(new NotFoundError('Пользователь не найден'));
       }
     })
-    .catch(() => {
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Введены некорректные данные'));
+      }
       next(new Error());
     });
 };
@@ -24,11 +26,12 @@ export const login = (req, res, next) => {
   const { email, password } = req.body;
   return User.findUserByCredentials(email, password)
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, jwtKey, { expiresIn: '1d' });
+      const { JWT_SALT } = req.app.get('config');
+      const token = jwt.sign({ _id: user._id }, JWT_SALT, { expiresIn: '1d' });
       res.send({ token });
     })
     .catch(() => {
-      next(new UnauthorizedError('Неправильная почта или пароль'));
+      next(Error('Unknown server error'));
     });
 };
 
@@ -91,7 +94,10 @@ export const edit = (req, res, next) => {
     { new: true, runValidators: true },
   )
     .then((user) => {
-      res.send(user);
+      if (user) res.send(user);
+      else {
+        next(new NotFoundError('Пользователь не найден'));
+      }
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {

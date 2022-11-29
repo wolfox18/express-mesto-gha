@@ -20,7 +20,7 @@ export const create = (req, res, next) => {
 };
 
 export const readAll = (req, res, next) => {
-  Card.find({})
+  Card.find({}).populate('owner')
     .then((card) => {
       res.send(card);
     })
@@ -33,9 +33,9 @@ export const deleteById = (req, res, next) => {
   Card.findById({ _id: req.params.cardId })
     .then((card) => {
       if (!card) {
-        next(new NotFoundError('Карточка не найдена'));
+        throw (new NotFoundError('Карточка не найдена'));
       } else if (card.owner.toString() !== req.user._id) {
-        next(new ForbiddenError('Вы не можете удалить чужую карточку'));
+        throw (new ForbiddenError('Вы не можете удалить чужую карточку'));
       } else {
         return card.remove();
       }
