@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import bodyParser from 'body-parser';
 import { errors } from 'celebrate';
+import { constants } from 'http2';
 import { usersRouter } from './routes/users.js';
 import { cardsRouter } from './routes/cards.js';
 import { signRouter } from './routes/sign.js';
@@ -34,8 +35,8 @@ app.use('*', (req, res, next) => next(new NotFoundError('Страница не �
 
 //  error handler
 app.use((err, req, res, next) => {
-  res.status(err.statusCode).send({ message: err.message });
-  next();
+  res.status(err.statusCode || constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
+    .send({ message: err.message });
 });
 
 app.listen(PORT, () => {

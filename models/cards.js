@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { urlRegEx } from '../utils/utils.js';
 
 const cardSchema = new Schema({
   name: {
@@ -10,6 +11,10 @@ const cardSchema = new Schema({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (link) => urlRegEx.test(link),
+      message: () => 'Введите корректный URL',
+    },
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,

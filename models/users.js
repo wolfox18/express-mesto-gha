@@ -2,6 +2,7 @@ import mongoose, { Schema } from 'mongoose';
 import validator from 'validator';
 import bcryptjs from 'bcryptjs';
 import { UnauthorizedError } from '../utils/errors.js';
+import { urlRegEx } from '../utils/utils.js';
 
 const userSchema = new Schema({
   name: {
@@ -18,6 +19,10 @@ const userSchema = new Schema({
   },
   avatar: {
     type: String,
+    validate: {
+      validator: (link) => urlRegEx.test(link),
+      message: () => 'Введите корректный URL',
+    },
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
   },
   email: {
@@ -32,12 +37,10 @@ const userSchema = new Schema({
   password: {
     type: String,
     required: true,
-    minlength: 8,
     select: false,
   },
 });
 
-// eslint-disable-next-line func-names
 userSchema.statics.findUserByCredentials = function (email, password) {
   return this.findOne({ email })
     .select('+password')

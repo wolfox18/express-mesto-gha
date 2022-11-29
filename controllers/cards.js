@@ -1,7 +1,7 @@
 import { constants } from 'http2';
 import { Card } from '../models/cards.js';
 import {
-  NotFoundError, InternalServerError, BadRequestError, ForbiddenError,
+  NotFoundError, BadRequestError, ForbiddenError,
 } from '../utils/errors.js';
 
 export const create = (req, res, next) => {
@@ -14,7 +14,7 @@ export const create = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        next(new InternalServerError(err.message));
+        next(new Error());
       }
     });
 };
@@ -24,14 +24,13 @@ export const readAll = (req, res, next) => {
     .then((card) => {
       res.send(card);
     })
-    .catch((err) => {
-      next(new InternalServerError(err.message));
+    .catch(() => {
+      next(new Error());
     });
 };
 
 export const deleteById = (req, res, next) => {
   Card.findById({ _id: req.params.cardId })
-    // eslint-disable-next-line consistent-return
     .then((card) => {
       if (!card) {
         next(new NotFoundError('Карточка не найдена'));
@@ -48,7 +47,7 @@ export const deleteById = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        next(new InternalServerError(err.message));
+        next(new Error());
       }
     });
 };
@@ -69,7 +68,7 @@ export const setLike = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        next(new InternalServerError(err.message));
+        next(new Error());
       }
     });
 };
@@ -90,7 +89,7 @@ export const removeLike = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        next(new InternalServerError(err.message));
+        next(new Error());
       }
     });
 };

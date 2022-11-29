@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { constants } from 'http2';
 
 export class BadRequestError extends Error {
@@ -26,13 +25,6 @@ export class NotFoundError extends Error {
   constructor(message) {
     super(message);
     this.statusCode = constants.HTTP_STATUS_NOT_FOUND;
-  }
-}
-
-export class InternalServerError extends Error {
-  constructor(message) {
-    super(message);
-    this.statusCode = constants.HTTP_STATUS_INTERNAL_SERVER_ERROR;
   }
 }
 

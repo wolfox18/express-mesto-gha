@@ -1,4 +1,3 @@
-/* eslint-disable no-useless-escape */
 export const jwtKey = 'simplesalt';
 
 export const urlRegEx = /^(http|https):\/\/(www\.)?[a-z0-9-\._~:\/?\[\]@!$&'()*+,;=]+#?/i;
