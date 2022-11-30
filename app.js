@@ -46,7 +46,7 @@ app.use('*', (req, res, next) => next(new NotFoundError('Страница не �
 //  error handler
 app.use((err, req, res, next) => {
   res.status(err.statusCode || constants.HTTP_STATUS_INTERNAL_SERVER_ERROR)
-    .send({ message: err.message || 'Неизвестная ошибка' });
+    .send({ message: err.message });
   next();
 });
 

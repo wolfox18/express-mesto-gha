@@ -18,7 +18,7 @@ export const readMe = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Введены некорректные данные'));
       }
-      next(new Error());
+      next(err);
     });
 };
 
@@ -31,8 +31,7 @@ export const login = (req, res, next) => {
       res.send({ token });
     })
     .catch((err) => {
-      if (err.statusCode === 401) next(err);
-      else next(Error('Unknown server error'));
+      next(err);
     });
 };
 
@@ -41,8 +40,8 @@ export const readAll = (req, res, next) => {
     .then((users) => {
       res.send(users);
     })
-    .catch(() => {
-      next(new Error());
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -58,7 +57,7 @@ export const readById = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Введены некорректные данные'));
       } else {
-        next(new Error());
+        next(err);
       }
     });
 };
@@ -82,7 +81,7 @@ export const createUser = (req, res, next) => {
         } else if (err.code === 11000) {
           next(new ConflictError('Пользователь с такой почтой уже существует'));
         } else {
-          next(new Error());
+          next(err);
         }
       }));
 };
@@ -101,10 +100,12 @@ export const edit = (req, res, next) => {
       }
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Введены некорректные данные'));
+      } else if (err.name === 'ValidationError') {
         next(new BadRequestError('Введены некорректные данные'));
       } else {
-        next(new Error());
+        next(err);
       }
     });
 };
@@ -123,7 +124,7 @@ export const editAvatar = (req, res, next) => {
       if (err.name === 'ValidationError') {
         next(new BadRequestError('Введены некорректные данные'));
       } else {
-        next(new Error());
+        next(err);
       }
     });
 };

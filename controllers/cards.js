@@ -11,18 +11,19 @@ export const create = (req, res, next) => {
       res.status(constants.HTTP_STATUS_CREATED).send(card);
     })
     .catch((err) => {
-      if (err.statusCode) next(err);
-      else next(new Error());
+      if (err.name === 'ValidationError') {
+        next(new BadRequestError('Введены некорректные данные'));
+      } else next(err);
     });
 };
 
 export const readAll = (req, res, next) => {
-  Card.find({}).populate('owner')
+  Card.find({}).populate('owner').populate('likes')
     .then((card) => {
       res.send(card);
     })
-    .catch(() => {
-      next(new Error());
+    .catch((err) => {
+      next(err);
     });
 };
 
@@ -41,8 +42,9 @@ export const deleteById = (req, res, next) => {
       res.send(card);
     })
     .catch((err) => {
-      if (err.statusCode) next(err);
-      else next(new Error());
+      if (err.name === 'CastError') {
+        next(new BadRequestError('Переданы некорректные данные'));
+      } else next(err);
     });
 };
 
@@ -62,7 +64,7 @@ export const setLike = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        next(new Error());
+        next(err);
       }
     });
 };
@@ -83,7 +85,7 @@ export const removeLike = (req, res, next) => {
       if (err.name === 'CastError') {
         next(new BadRequestError('Переданы некорректные данные'));
       } else {
-        next(new Error());
+        next(err);
       }
     });
 };
